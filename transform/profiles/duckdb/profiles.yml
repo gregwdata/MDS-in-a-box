@@ -18,3 +18,8 @@ meltano:
       type: duckdb
       threads: 4
       external_root: /tmp/data_catalog/conformed
+    docker:
+      type: duckdb
+      threads: 4
+      external_root: "{{ env_var('MELTANO_PROJECT_ROOT') }}/data/data_catalog/conformed"
+      path: "{{ env_var('DBT_DUCKDB_PATH') }}"
