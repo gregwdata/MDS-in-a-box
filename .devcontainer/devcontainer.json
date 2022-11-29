@@ -7,7 +7,7 @@
 	"context": "..",
 	"build": {
         "args": {
-            "VARIANT": "3.9",
+            "VARIANT": "3.9"
         }
     },
 
@@ -36,6 +36,7 @@
         "mechatroner.rainbow-csv"
     ],
     "features": {
+        //see https://github.com/devcontainers/features/tree/main/src/docker-in-docker for details on below
         "ghcr.io/devcontainers/features/docker-in-docker:1":{}
     },
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.

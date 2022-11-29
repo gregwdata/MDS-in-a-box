@@ -26,4 +26,7 @@ docker-run:
 		--env MDS_INCLUDE_ACTUALS=true \
 		--env MDS_LATEST_RATINGS=true \
 		--env MDS_ENABLE_EXPORT=true \
-		mdsbox make pipeline
+		--env MELTANO_ENVIRONMENT=docker \
+		-p 8088:8088 \
+		--rm \
+		mdsbox make pipeline superset-visuals
