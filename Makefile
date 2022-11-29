@@ -29,4 +29,4 @@ docker-run:
 		--env MELTANO_ENVIRONMENT=docker \
 		-p 8088:8088 \
 		--rm \
-		mdsbox make build pipeline superset-visuals
+		mdsbox make pipeline superset-visuals

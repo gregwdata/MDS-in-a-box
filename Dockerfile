@@ -23,6 +23,8 @@ COPY meltano.yml /usr/src/app/
 RUN meltano --log-level=debug --environment=docker install extractors
 RUN meltano --log-level=debug --environment=docker install loaders
 RUN meltano --log-level=debug --environment=docker install utility dbt-duckdb
+RUN meltano --log-level=debug --environment=docker install mappers
+RUN meltano --log-level=debug --environment=docker install utility superset
 
 COPY data ./data
 COPY transform ./transform
