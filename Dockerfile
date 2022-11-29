@@ -29,3 +29,4 @@ RUN meltano --log-level=debug --environment=docker install utility superset
 COPY data ./data
 COPY transform ./transform
 COPY Makefile .
+COPY visuals ./visuals
