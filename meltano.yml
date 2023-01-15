@@ -18,27 +18,54 @@ environments:
 plugins:
   extractors:
     - name: tap-spreadsheets-anywhere
-      variant: ets
-      pip_url: git+https://github.com/ets/tap-spreadsheets-anywhere.git
+      variant: rfainc
+      pip_url: git+https://github.com/rfainc/tap-spreadsheets-anywhere.git
+      # config:
+      #   tables:
+      #     - path: file://./data/2015
+      #       name: EEO1_cbsa_nac3_2015
+      #       pattern: "year15_cbsa_nac3.txt"
+      #       start_date: '2010-01-01T00:00:00Z'
+      #       key_properties: []
+      #       format: csv
+      #       delimiter: ;
+      #       sample_rate: 1
+      #       max_sampling_read: 10000000
+      #       #max_records_per_run: 250
       config:
         tables:
-          - path: https://www.eeoc.gov/sites/default/files/2021-12/EEO1%202018%20PUF.xlsx
-            name: EEO1_2018
-            pattern: EEO1*.xlsx
-            start_date: "2001-01-01T00:00:00Z"
+          # - path: https://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2015/datasets/year15_cbsa_nac3.txt
+          #   name: EEO1_cbsa_nac3_2015
+          #   search_prefix: year15_cbsa_nac3.txt
+          #   pattern: "year15_cbsa_nac3.txt"
+          #   start_date: '2010-01-01T00:00:00Z'
+          #   key_properties: []
+          #   format: csv
+          #   delimiter: ;
+          #   sample_rate: 1
+          #   max_sampling_read: 10000000
+          #   #max_records_per_run: 250
+          - path: http://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2015/datasets/
+            name: EEO1_state_nac3_2015
+            search_prefix: "year15_state_nac3.txt"
+            pattern: "year15_state_nac3.txt"
+            start_date: '2010-01-01T00:00:00Z'
             key_properties: []
-            format: excel
-            worksheet_name: Data
+            format: csv
+            delimiter: ;
+            sample_rate: 1
+            max_sampling_read: 10000000
+            #max_records_per_run: 250
   loaders:
     - name: target-parquet
       variant: estrategiahq
       pip_url: git+https://github.com/estrategiahq/target-parquet.git
       config:
         destination_path: $MELTANO_PROJECT_ROOT/data/data_catalog/psa
-        file_size: 100000
+        file_size: 100
         compression_method: snappy
         streams_in_separate_folder: true
-        add_record_metadata: true
+        add_record_metadata: false
         logging_level: DEBUG
     - name: target-jsonl
       variant: andyh1203
