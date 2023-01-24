@@ -46,8 +46,35 @@ I checked [data.gov](data.gov), and luckily found that the same data are availab
 
 But... kept getting errors - and interestingly the errors were often different each time I ran the tap. After downloading the file with `wget` and trying to directly load from the filesystem, I still got errors, though now consistent each time and related to UTF-8 unparsable characters. 
 
-After identifying the location where the error occurred within the `.txt` file, and checking the same location in the browser, it appears the data from the file is itself being served by data.gov in some unstable way that causes extra characters to be injected around 470 lines into the dataset!
+After identifying the location where the error occurred within the `.txt` file, and checking the same location in the browser, it appears the data from the file is itself being corrupted by timeouts while trying to download it. 
 
 One observation I have is the accumulated layers of extraction in using meltano plus a tap made it hard to debug this situation.
 
-Now it's back to the drawing board for a new datasource, or I'll have to write some custom scripts to ingest this data (kind of defeating the purpose of MDS-in-a-box)
+Data.gov lists contact information for these data sets, so I'm trying my luck there. The full write-up documenting the issues sent to EEOC via email is reproduced here:
+
+> * Downloading Excel files from https://www.eeoc.gov/data/job-patterns-minorities-and-women-private-industry-eeo-1-0
+>    * All of the Excel file downloads linked at the bottom of this page result in .xlsx files of around 36-50 MB in size, but I am unable to open them in excel. 
+>	
+>    * They all result in an error message from Excel like: 
+>	![image](https://user-images.githubusercontent.com/79663385/214203188-461eda65-c251-4281-8b1c-0a031695c9bb.png)
+>	
+>    * There appears to be a problem in the compression of the main data xml files (sheet1.xml) inside of the .xlsx files. Using 7zip, I am able to open and navigate the rest of the structure of the Excel files, but it is not able to successfully uncompress this part, containing the data.
+> * Incomplete download of .txt files of the data from data.gov due to connection closures
+>	 * Having found that the EEO-1 data is listed on data.gov, I attempted to download from there. 
+>	 * Each data.gov page contains a link to the data file, which refers to .txt files accessible via an eeoc.gov url.
+> 	 * The issue I've run into here is that the larger files do not download completely.
+> 	 * For example, the 2009 state and NAIC-3-aggregated data are linked on this data.gov page https://catalog.data.gov/dataset/job-patterns-for-minorities-and-women-in-private-industry-2009-eeo-1-state-aggregate-by-na-942fc to this eeoc.gov URL: https://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2009/datasets/year09_state_nac3.txt
+>	 * When opening the .txt file link in browser, it does not completely download. The amount of data transmitted before stopping is somewhat variable. For that particular file, it tends to stop somewhere in the "M" state names. 
+> 	 * The Chrome browser console shows an error message "net::ERR_INCOMPLETE_CHUNKED_ENCODING"
+>	![image](https://user-images.githubusercontent.com/79663385/214203174-c3633cb6-0323-4715-b1d1-c688cc5178cb.png)
+> 	 * The same error message is encountered when accessing the 2015 data at https://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2015/datasets/year15_state_nac3.txt , with the addition of non-ASCII or UTF-8 characters and a tmp filename being inserted into the downloaded data in the middle of the file
+>	![image](https://user-images.githubusercontent.com/79663385/214203207-47568af9-4d33-4df4-b36b-6dd678f90252.png)
+> 	 * Using Python scripting tools to directly load data from these URLs, for most of the .txt files listed on data.gov, I encountered errors consistent with the partial download of the files and/or presence of non-decodable characters, as in the above example.
+>	 * However, I was successful in fully downloading these files using the Linux utility "wget", which would partially download the file, report "connection closed" then automatically resume download at the point it left off. After multiple restarts, it is able to download the complete contents of the files.
+> * Missing years of data on data.gov
+>	 * Searching for EEO-1 data on data.gov, I am able to find search results for years up to 2017, but not later. This is in contrast to the data on the eeoc.gov site, which has Excel files through 2020.
+>	 * I did note, that following the URL structure of the 2017 files, I was able to change 17 to 18, and download the 2018 data from https://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2018/datasets/year18_state_nac3.txt
+> 	 * However, that did not work for 2019 or 2020
+>	 * Also, the 2010 dataset referenced on this page of data.gov https://catalog.data.gov/dataset/job-patterns-for-minorities-and-women-in-private-industry-2010-eeo-1-state-aggregate-by-na-13a2f goes to a 404, "the requested page could not be found" message on the eeoc.gov URL https://www.eeoc.gov/eeoc/statistics/employment/jobpat-eeo1/2010/upload/2010_EEO-1_Job_Patterns_Data.zip that the download button from data.gov links to.
+
+**Temporary solution** as noted in the write-up of the issues, running wget from the command line automatically resumed the `.txt` file download from the files linked (as "`.csv`s") from data.gov, served via an eeoc.gov URL. I've written a bash script at `./extract/download_data.sh` to follow the naming pattern established from the data.gov links, iterating over year numbers. With that, I was able to download files for years 2009-2018, excluding 2010. That gives enough to work with to proceed defining a dat pipeline around this data while optimistically awaitng a response from the EEOC. 
