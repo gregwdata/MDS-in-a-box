@@ -46,7 +46,7 @@ I checked [data.gov](data.gov), and luckily found that the same data are availab
 
 But... kept getting errors - and interestingly the errors were often different each time I ran the tap. After downloading the file with `wget` and trying to directly load from the filesystem, I still got errors, though now consistent each time and related to UTF-8 unparsable characters. 
 
-After identifying the location where the error occurred within the `.txt` file, and checking the same location in the browser, it appears the data from the file is itself being corrupted by timeouts while trying to download it. 
+After identifying the location where the error occurred within the `.txt` file, and checking the same location in the browser, it appears the data from the file is itself being corrupted by timeouts while trying to download it. (In the coures of debugging this, I went as far as [forking tap-spreadsheets-anywhere](https://github.com/gregwdata/tap-spreadsheets-anywhere), modifying it with optional parameters to override the default file encoding, hoping that I could get away with ignoring the mess of bytes caused by the connection dropping. Alas, it didn't work, but it did at least help with the original goal of learning the ins and outs of Meltano!)
 
 One observation I have is the accumulated layers of extraction in using meltano plus a tap made it hard to debug this situation.
 
