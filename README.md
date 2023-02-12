@@ -5,7 +5,7 @@ This project will start with data published by the US Equal Employment Opportuni
 
 ## Project plan
 
-- [ ] Extract and Load EEO-1 data form eeoc.gov-hosted Excel files using Meltano
+- [x] Extract and Load EEO-1 data form eeoc.gov-hosted Excel files using Meltano
 - [ ] Transform, using dbt, into tidy datasets of interest
 	- The datasets provided by EEOC are pre-aggregated, with different grains mixed in the same file
 - [ ] Perform (and preserve using configuration files) EDA and initial visualizations in Rill Developer
@@ -78,3 +78,21 @@ Data.gov lists contact information for these data sets, so I'm trying my luck th
 >	 * Also, the 2010 dataset referenced on this page of data.gov https://catalog.data.gov/dataset/job-patterns-for-minorities-and-women-in-private-industry-2010-eeo-1-state-aggregate-by-na-13a2f goes to a 404, "the requested page could not be found" message on the eeoc.gov URL https://www.eeoc.gov/eeoc/statistics/employment/jobpat-eeo1/2010/upload/2010_EEO-1_Job_Patterns_Data.zip that the download button from data.gov links to.
 
 **Temporary solution** as noted in the write-up of the issues, running wget from the command line automatically resumed the `.txt` file download from the files linked (as "`.csv`s") from data.gov, served via an eeoc.gov URL. I've written a bash script at `./extract/download_data.sh` to follow the naming pattern established from the data.gov links, iterating over year numbers. With that, I was able to download files for years 2009-2018, excluding 2010. That gives enough to work with to proceed defining a dat pipeline around this data while optimistically awaitng a response from the EEOC. 
+
+### Data source update
+Received word back from the EEOC that they had fixed the issues. I've verified that the Excel downloads work from eeoc.gov, and that the data files from data.gov can be downloaded without frequent timeouts.
+
+I decided to switch back to using the Excel files from eeoc.gov as the primary source, since the 2019 and 2020 datasets are available there, but not on data.gov. I may come back later and supplement with the data.gov data for the earlier years that are not covered by complete Excel files on eeoc.gov.
+
+Next issue encountered: Tried using the `tap-spreadsheets-anywhere` tap to load the Excel files directly. For these large Excel files, this is very slow. And encounter the next major issue: in the numeric columns of the Excel files, `NULL` values are indicated with a `*` in the cell. 
+
+This is problematic to work with using `tap-spreadsheets-anywhere`. I don't have hooks to specify an alternate `NULL` character. Plus, some of the columns in some of the files have `*`'s that don't show up until many rows from the top of the file. In those cases, the type checking in the Meltano tap throws an error when it hits the `*`, since it had characterized the column as integer. I can work around that by increasing the sampling coverage, but that just extends the already-slow time, and more annoyingly, all the otherwise-numeric columns end up stored as strings in the resulting schema to accomodate the `*`s.  
+
+So, time for another pivot in how to extract data from source. After a few iterations, ended up with the following solution:
+
+* Bash script uses wget to iterate over the file URLS and download each file
+* Using [xlsx2csv](https://github.com/dilshod/xlsx2csv), the Bash script extracts the data from each Excel file to `.csv`
+* The final step of each iteration in the script: use `sed` to remove all asterisks from the `.csv`s
+* Meltano `tap-spreadsheets-anywhere` loads the data from the folder containing the cleaned-up `csv` files.
+
+The `xlsx2csv` and Meltano steps above are both slow. In future development, I'm considering skipping use of this tap for the initial pull of this data, and directly loading the folder of `.csv`s using `duckDB` instead. May consider a custom Meltano extractor that wraps all of this, to help manage the dependencies. 
