@@ -20,6 +20,35 @@ plugins:
     - name: tap-spreadsheets-anywhere
       variant: rfainc
       pip_url: git+https://github.com/rfainc/tap-spreadsheets-anywhere.git
+      config:
+        tables:
+          - path: https://www.eeoc.gov/sites/default/files/2022-09
+            name: EEO1_2019_PUF
+            pattern: EEO1_2019_PUF.xlsx
+            start_date: '2001-01-01T00:00:00Z'
+            key_properties: [Nation,Region,Division,State,CBSA,County,NAICS2,NAICS3]
+            format: excel
+            worksheet_name: Data
+            sample_rate: 1
+            max_sampling_read: 40000
+          - path: https://www.eeoc.gov/sites/default/files/2021-12
+            name: EEO1_2018_PUF
+            pattern: EEO1%202018%20PUF.xlsx
+            start_date: '2001-01-01T00:00:00Z'
+            key_properties: [Nation,Region,Division,State,CBSA,County,NAICS2,NAICS3]
+            format: excel
+            worksheet_name: Data
+            sample_rate: 1
+            max_sampling_read: 40000
+          - path: https://www.eeoc.gov/sites/default/files/2021-12
+            name: EEO1_2017_PUF
+            pattern: EEO1%202017%20PUF.xlsx
+            start_date: '2001-01-01T00:00:00Z'
+            key_properties: [Nation,Region,Division,State,CBSA,County,NAICS2,NAICS3]
+            format: excel
+            worksheet_name: Data
+            sample_rate: 1
+            max_sampling_read: 40000
       # config:
       #   tables:
       #     - path: file://./data/2015
@@ -32,8 +61,8 @@ plugins:
       #       sample_rate: 1
       #       max_sampling_read: 10000000
       #       #max_records_per_run: 250
-      config:
-        tables:
+      #config:
+      #  tables:
           # - path: https://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2015/datasets/year15_cbsa_nac3.txt
           #   name: EEO1_cbsa_nac3_2015
           #   search_prefix: year15_cbsa_nac3.txt
@@ -45,28 +74,28 @@ plugins:
           #   sample_rate: 1
           #   max_sampling_read: 10000000
           #   #max_records_per_run: 250
-          - path: http://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2015/datasets/
-            name: EEO1_state_nac3_2015
-            search_prefix: "year15_state_nac3.txt"
-            pattern: "year15_state_nac3.txt"
-            start_date: '2010-01-01T00:00:00Z'
-            key_properties: []
-            format: csv
-            delimiter: ;
-            sample_rate: 1
-            max_sampling_read: 10000000
-            #max_records_per_run: 250
+          # - path: http://www.eeoc.gov/sites/default/files/migrated_files/eeoc/statistics/employment/jobpat-eeo1/2015/datasets/
+          #   name: EEO1_state_nac3_2015
+          #   search_prefix: "year15_state_nac3.txt"
+          #   pattern: "year15_state_nac3.txt"
+          #   start_date: '2010-01-01T00:00:00Z'
+          #   key_properties: []
+          #   format: csv
+          #   delimiter: ;
+          #   sample_rate: 1
+          #   max_sampling_read: 10000000
+          #   #max_records_per_run: 250
   loaders:
     - name: target-parquet
       variant: estrategiahq
       pip_url: git+https://github.com/estrategiahq/target-parquet.git
       config:
-        destination_path: $MELTANO_PROJECT_ROOT/data/data_catalog/psa
-        file_size: 100
+        destination_path: $MELTANO_PROJECT_ROOT/data/data_catalog/raw_parquet
+        file_size: 100000
         compression_method: snappy
         streams_in_separate_folder: true
-        add_record_metadata: false
-        logging_level: DEBUG
+        add_record_metadata: true
+        #logging_level: DEBUG
     - name: target-jsonl
       variant: andyh1203
       pip_url: target-jsonl
