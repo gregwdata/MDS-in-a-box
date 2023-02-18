@@ -96,3 +96,14 @@ So, time for another pivot in how to extract data from source. After a few itera
 * Meltano `tap-spreadsheets-anywhere` loads the data from the folder containing the cleaned-up `csv` files.
 
 The `xlsx2csv` and Meltano steps above are both slow. In future development, I'm considering skipping use of this tap for the initial pull of this data, and directly loading the folder of `.csv`s using `duckDB` instead. May consider a custom Meltano extractor that wraps all of this, to help manage the dependencies. 
+
+### Start of Transformations
+The last comment above seemed to be effective. It was much faster to load the cleaned `.csv` files directly with duckDB to parquet. 
+
+Now the project ingests the full contents of the available Public Use File (PUF) excel files and materializes it to `.parquet`.
+
+To generate the materialization, then explore the data in Rill Developer:
+
+	make build
+	make pipeline
+	make rill-visuals
