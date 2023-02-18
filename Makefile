@@ -2,12 +2,12 @@ build:
 	meltano install
 
 pipeline:
-	meltano run tap-spreadsheets-anywhere add-timestamps target-parquet
+	#meltano run tap-spreadsheets-anywhere add-timestamps target-parquet
 	mkdir -p data/data_catalog/conformed
 	mkdir -p data/data_catalog/prep
 	mkdir -p data/data_catalog/raw
 	meltano invoke dbt-duckdb deps
-	meltano invoke dbt-duckdb run-operation elo_rollforward
+	#meltano invoke dbt-duckdb run-operation elo_rollforward
 	meltano invoke dbt-duckdb build
 
 docker-build:
