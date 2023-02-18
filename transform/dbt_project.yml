@@ -1,4 +1,4 @@
-name: nba_monte_carlo
+name: EEOC_data
 version: '1.0'
 profile: meltano
 config-version: 2
@@ -23,7 +23,7 @@ clean-targets:
 - dbt_packages
 - logs
 models:
-  nba_monte_carlo:
+  EEOC_data:
     raw:
       +materialized: table
     prep:
