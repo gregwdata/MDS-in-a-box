@@ -26,7 +26,7 @@ models:
   EEOC_data:
     raw:
       +materialized: table
-    prep:
+    prepare:
       +materialized: table
     conformed:
       +materialized: view

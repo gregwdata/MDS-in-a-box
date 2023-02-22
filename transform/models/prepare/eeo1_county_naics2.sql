@@ -1,7 +1,3 @@
-{{
-    config(materialized='external')
-}}
-
 SELECT *
 FROM {{ ref( 'raw_pufs' ) }}
 WHERE STATE NOT NULL

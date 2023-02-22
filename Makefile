@@ -16,8 +16,8 @@ docker-build:
 superset-visuals:
 	meltano install utility superset
 	meltano invoke superset fab create-admin --username admin --firstname lebron --lastname james --email admin@admin.org --password password
-	meltano invoke superset import-datasources -p visuals/datasources.yml
-	meltano invoke superset import-dashboards -p visuals/dashboards.json
+	#meltano invoke superset import-datasources -p visuals/datasources.yml
+	#meltano invoke superset import-dashboards -p visuals/dashboards.json
 	meltano invoke superset:ui
 
 docker-run-superset:
