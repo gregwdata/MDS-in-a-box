@@ -78,3 +78,12 @@ LEFT JOIN {{ ref( 'xf_series_to_seed' ) }} XF ON XF.series_id = E.series_id
 WHERE E.series_result = 4
 
 {%- endmacro -%}
+
+{%- macro american_odds(value) -%}
+
+    CASE WHEN {{ value }} >= 0.5 
+        THEN '-' || ROUND( {{ value }} / ( 1.0 - {{ value }} ) * 100 )::int
+        ELSE '+' || ((( 1.0 - {{ value }} ) / ({{ value }}::real ) * 100)::int)
+    END 
+
+{%- endmacro -%}
