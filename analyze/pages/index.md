@@ -1,8 +1,14 @@
-# NBA Monte Carlo Simulator
+# EEOC Data Compilation
 
 Welcome to the [NBA monte carlo simulator](https://github.com/matsonj/nba-monte-carlo) project. Evidence is used as the as data visualization & analysis part of [MDS in a box](https://www.dataduel.co/modern-data-stack-in-a-box-with-duckdb/).
 
 This project leverages duckdb, meltano, dbt, and evidence and builds and runs about once per day in a github action. You can learn more about this on [this page](/about).
+
+```count_eeo1_state_naics2
+select
+  count(*) as num_rows_num0
+from eeo1_state_naics2
+```
 
 ```reg_season
 select
@@ -69,6 +75,30 @@ ORDER BY sort_key
 ```thru_date
 SELECT max(date) as end_date FROM latest_results
 ```
+
+```show_tables
+PRAGMA show_tables
+```
+
+```unpivot_county_n2
+SELECT * EXCLUDE(filename)
+FROM unpivot_county_n2
+WHERE YEAR = 2019
+limit 1000
+```
+
+## The database contains the following tables
+<DataTable data={show_tables} search=true>
+    <column id=name/>
+</DataTable>
+
+## Count of rows in some tables
+_<sub>There are <Value data={count_eeo1_state_naics2} column=num_rows_num0/> rows in `count_eeo1_state_naics2`.</sub>_
+
+## Sample of a table
+The first 1,000 rows of long-formatted 2019 county-level NAICS 2 data are shown here:
+<DataTable data={unpivot_county_n2} search=true/>
+
 ## Conference Summaries
 _<sub>This data was last updated as of <Value data={thru_date} column=end_date/>.</sub>_
 
