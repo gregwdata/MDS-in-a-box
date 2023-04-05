@@ -1,0 +1,6 @@
+SELECT *
+FROM {{ ref( 'raw_pufs' ) }}
+WHERE 
+ NAICS2 IS NULL
+AND NAICS3 IS NULL
+AND CBSA NOT NULL
